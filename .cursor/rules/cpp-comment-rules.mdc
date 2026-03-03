@@ -1,0 +1,491 @@
+---
+description: C++代码注释规范要求 - 统一团队C++工程中.h/.cpp文件、类、函数的注释风格
+globs:
+  - "**/*.cpp"
+  - "**/*.cc"
+  - "**/*.cxx"
+  - "**/*.h"
+  - "**/*.hpp"
+alwaysApply: false
+---
+
+# C++ 工程注释规范
+
+> **目标**：统一团队 C++ 工程中源码文件、类、函数的注释风格，提升可读性、可维护性与协作效率。
+>
+> **适用范围**：基础库、业务服务、高性能组件（lock-free / NUMA / IO / 网络等）。
+>
+> **适用对象**：人类开发者 + 自动化 Agent（代码生成 / 重构 / Review）。
+
+## 1. 总体原则（General Rules）
+
+### 1.1 基本原则
+
+1. 所有公共API（类、函数、成员变量）必须添加注释说明。
+2. 注释应该清晰、简洁、准确，帮助理解代码的意图和用法。
+3. 注释应该与代码保持同步，代码修改时及时更新注释。
+4. 使用中文进行注释说明，保持与项目整体风格一致。
+
+### 1.2 注释的职责分工
+
+- **文件头注释**：说明 *Why*（设计目标、适用场景）
+- **类 / 结构体注释**：说明 *What*（语义、约束、使用方式）
+- **函数注释**：说明 *Contract*（输入输出、线程安全、时序、异常）
+- **实现内部注释**：说明 *How*（算法、内存序、性能取舍）
+
+> ❌ **禁止**：逐行翻译代码含义的"废话注释"
+
+### 1.3 注释格式要求
+
+1. 使用 `/** */` 格式进行多行注释（Doxygen风格）。
+2. 使用 `//` 进行单行注释。
+3. 注释符号后应该有一个空格：`// 注释内容`。
+4. 注释应该对齐代码，保持一致的缩进。
+5. 注释内容应该使用中文，专业术语可以保留英文。
+
+
+## 2. 文件级注释规范
+
+### 2.1 `.h` 头文件头部注释（必须）
+
+#### 规则
+
+- 必须包含 `@file`、`@brief`
+- 建议包含 `@details`、`@note`、`@author`、`@date`、`@version`。未特别说明情况下，authore 默认为“dou lianjun,  email: beijing.dou@qq.com"。
+- `@copyright` 中的<Organization>默认统一为“QiYuan Lab”, <Year> 为文件创建年份。
+- 接口声明文件必须说明**使用约束**
+- 不描述具体实现细节
+
+#### 模板
+
+```cpp
+/********************************************************************************
+ * @file    <filename>.h
+ * @brief   <One-line summary>
+ *
+ * @author  <Author>
+ * @date    <YYYY-MM-DD>
+ * @version <Major.Minor.Patch>
+ *
+ * @details
+ * <Design intent, usage scenario, constraints>
+ *
+ * @note
+ * - <Important limitation>
+ * - <Threading / performance notes>
+ *
+ * @copyright
+ * Copyright (c) <Year> <Organization>. All rights reserved.
+ ********************************************************************************/
+```
+
+#### 简化模板（可选）
+
+```cpp
+/**
+ * @file 文件名.h
+ * @brief 文件的简要描述
+ * @author 作者名称
+ * @date 创建日期或最后修改日期（YYYY-MM-DD）
+ * @details 文件的详细说明（可选）
+ */
+```
+
+
+### 2.2 `.cpp` 源文件头部注释（必须）
+
+#### 规则
+
+- 不重复 `.h` 中的接口说明
+- 聚焦实现策略与关键假设
+- 可以省略 `@version`
+
+#### 模板
+
+```cpp
+/********************************************************************************
+ * @file    <filename>.cpp
+ * @brief   <Implementation summary>
+ *
+ * @author  <Author>
+ * @date    <YYYY-MM-DD>
+ *
+ * @details
+ * <Implementation notes, memory model, performance trade-offs>
+ ********************************************************************************/
+```
+
+#### 简化模板（可选）
+
+```cpp
+/**
+ * @file 文件名.cpp
+ * @brief 文件的简要描述
+ * @author 作者名称
+ * @date 创建日期或最后修改日期（YYYY-MM-DD）
+ * @details 文件的详细说明（可选）
+ */
+```
+
+
+## 3. 类 / 结构体注释规范
+
+### 3.1 必须注释的对象
+
+- `class`
+- `struct`
+- `enum class`
+- 对外暴露的模板
+
+### 3.2 类注释模板
+
+```cpp
+/**
+ * @class <ClassName>
+ * @brief <Short description>
+ *
+ * @tparam T     <Template parameter description>
+ * @tparam Size  <Constraints if any>
+ *
+ * @details
+ * <Semantic meaning and usage>
+ *
+ * @note
+ * - <Thread safety>
+ * - <Lifetime / ownership>
+ */
+class MyClass {
+    // ...
+};
+```
+
+### 3.3 枚举注释
+
+```cpp
+/**
+ * @enum 枚举类型名
+ * @brief 枚举的简要说明
+ */
+enum class MyEnum {
+    VALUE1,  ///< 值1的说明
+    VALUE2,  ///< 值2的说明
+    VALUE3   ///< 值3的说明
+};
+```
+
+
+## 4. 函数 / 方法注释规范
+
+### 4.1 必须注释的函数
+
+- 公共接口函数（public API）
+- 构造 / 析构函数
+- 并发 / 异步 / 回调相关函数
+- 性能关键路径函数
+
+### 4.2 公共函数注释模板
+
+```cpp
+/**
+ * @brief <What the function does>
+ *
+ * @param[in]  <name> <Description>
+ * @param[out] <name> <Description>
+ * @param[in,out] <name> <Description>
+ *
+ * @return <Return value meaning>
+ *
+ * @throws <Exception type> <When and why>
+ *
+ * @note
+ * - Thread-safety: <e.g. SPSC only>
+ * - Blocking / non-blocking behavior
+ *
+ * @details 函数的详细说明和使用示例（可选）
+ *
+ * @example
+ * ```cpp
+ * int result = myFunction(10, 20);
+ * ```
+ */
+```
+
+#### 简化模板（参数方向不明确时）
+
+```cpp
+/**
+ * @brief 函数的简要描述
+ *
+ * @param param1 参数1的说明
+ * @param param2 参数2的说明
+ * @return 返回值的说明
+ * @throws 可能抛出的异常说明
+ */
+```
+
+### 4.3 私有/保护函数注释
+
+私有和保护函数也应该添加注释，但可以简化：
+
+```cpp
+/**
+ * @brief 内部辅助函数的简要说明
+ * @param value 参数说明
+ * @return 返回值说明（如有）
+ */
+void privateHelper(int value);
+```
+
+
+## 5. 成员变量注释规范
+
+### 5.1 公共成员变量
+
+```cpp
+/**
+ * @brief 成员变量的简要说明
+ */
+int publicMember_;
+```
+
+### 5.2 私有/保护成员变量
+
+```cpp
+int privateMember_;  // 成员变量的简要说明
+```
+
+
+## 6. 并发 / 高性能代码专用规则
+
+### 6.1 必须显式说明的内容
+
+- 线程模型（SPSC / MPSC / MPMC）
+- 原子变量的 `memory_order`
+- cache line padding / false sharing
+- NUMA 假设
+
+### 6.2 示例
+
+```cpp
+/**
+ * @brief 生产者写入数据
+ * @note Thread-safety: SPSC (Single Producer Single Consumer)
+ * @note Producer side: uses release semantics to publish data
+ */
+void produce() {
+    // Producer side: uses release semantics to publish data
+    write_index.store(next, std::memory_order_release);
+}
+
+/**
+ * @brief 消费者读取数据
+ * @note Thread-safety: SPSC (Single Producer Single Consumer)
+ * @note Consumer side: acquire ensures visibility of buffer content
+ */
+void consume() {
+    // Consumer side: acquire ensures visibility of buffer content
+    read_index.load(std::memory_order_acquire);
+}
+```
+
+
+## 7. 内联注释规范
+
+对于复杂的算法或逻辑，应该添加内联注释说明：
+
+```cpp
+// 使用快速排序算法对数组进行排序
+// 时间复杂度：O(n log n)，空间复杂度：O(log n)
+void quickSort(int* arr, int size) {
+    // 基准元素选择：使用数组中间元素
+    int pivot = arr[size / 2];
+    
+    // 分区操作：将小于基准的元素移到左边
+    // ...
+}
+```
+
+
+## 8. 特殊注释标记
+
+使用以下标记来标注特殊内容：
+
+- `@todo`: 待完成的功能
+- `@bug`: 已知的bug
+- `@warning`: 需要注意的事项
+- `@note`: 重要说明
+- `@deprecated`: 已废弃的API
+
+```cpp
+/**
+ * @brief 示例函数
+ * @todo 需要添加错误处理
+ * @warning 此函数不是线程安全的
+ * @deprecated 请使用 newFunction() 替代
+ */
+void oldFunction();
+```
+
+
+## 9. Agent 行为规范（Agent-Specific Rules）
+
+### 9.1 代码生成
+
+Agent 在生成 C++ 代码时：
+
+- **必须**补齐文件头注释
+- **必须**为 public API 添加 Doxygen 风格注释
+- **禁止**生成无约束说明的并发接口
+
+### 9.2 代码修改 / 重构
+
+Agent 在修改代码时：
+
+- 同步更新受影响的注释
+- 不得保留与实现不一致的注释
+- 重构不改变语义时，应保留原作者信息
+
+### 9.3 代码 Review
+
+Agent 在 Review 时重点检查：
+
+- 注释是否解释 *why* 而非 *what*
+- 并发假设是否明确
+- 接口约束是否清晰
+
+
+## 10. 禁止事项（Anti-Patterns）
+
+- ❌ 注释重复代码逻辑
+- ❌ 头文件中解释实现细节
+- ❌ 使用模糊词汇（"可能"、"大概"、"视情况"）
+- ❌ 并发代码无 memory order 说明
+- ❌ 逐行翻译代码含义的"废话注释"
+
+
+## 11. 完整示例
+
+### 11.1 头文件示例
+
+```cpp
+/********************************************************************************
+ * @file    MyModule.h
+ * @brief   示例模块类头文件，用于演示注释规范
+ *
+ * @author  开发者名称
+ * @date    2026-02-04
+ * @version 1.0.0
+ *
+ * @details
+ * 该模块提供了基本的模块功能，包括初始化和数据处理。
+ * 使用前需要先调用 initialize() 方法。
+ *
+ * @note
+ * - 该类不是线程安全的，多线程使用需要外部同步
+ * - 对象生命周期由调用者管理
+ *
+ * @copyright
+ * Copyright (c) 2026 IntelliSense_Server. All rights reserved.
+ ********************************************************************************/
+
+#ifndef MY_MODULE_H
+#define MY_MODULE_H
+
+#include <string>
+
+/**
+ * @class MyModule
+ * @brief 示例模块类，用于演示注释规范
+ *
+ * @details 该类提供了基本的模块功能，包括初始化和数据处理。
+ * 使用前需要先调用 initialize() 方法。
+ *
+ * @note
+ * - 该类不是线程安全的
+ * - 对象生命周期由调用者管理
+ */
+class MyModule {
+public:
+    /**
+     * @brief 初始化模块
+     * @param[in] config 配置参数
+     * @return true表示成功，false表示失败
+     * @throws std::runtime_error 当配置无效时抛出
+     *
+     * @note Thread-safety: 非线程安全，调用前需要外部同步
+     */
+    bool initialize(const std::string& config);
+    
+    /**
+     * @brief 处理数据
+     * @param[in] data 输入数据
+     * @return 处理后的数据
+     *
+     * @note 必须在 initialize() 之后调用
+     */
+    std::string processData(const std::string& data);
+
+private:
+    bool initialized_;  // 初始化状态标志
+    
+    /**
+     * @brief 内部验证函数
+     * @param[in] value 待验证的值
+     * @return 验证结果
+     */
+    bool validate(int value);
+};
+
+#endif // MY_MODULE_H
+```
+
+### 11.2 源文件示例
+
+```cpp
+/********************************************************************************
+ * @file    MyModule.cpp
+ * @brief   示例模块类实现文件
+ *
+ * @author  开发者名称
+ * @date    2026-02-04
+ *
+ * @details
+ * 实现了 MyModule 类的所有方法，使用简单的字符串处理策略。
+ * 性能考虑：字符串操作使用移动语义减少拷贝。
+ ********************************************************************************/
+
+#include "MyModule.h"
+#include <stdexcept>
+
+bool MyModule::initialize(const std::string& config) {
+    if (config.empty()) {
+        throw std::runtime_error("配置不能为空");
+    }
+    initialized_ = true;
+    return true;
+}
+
+std::string MyModule::processData(const std::string& data) {
+    if (!initialized_) {
+        throw std::runtime_error("模块未初始化");
+    }
+    // 简单的数据处理：转换为大写
+    std::string result = data;
+    // ... 处理逻辑
+    return result;
+}
+
+bool MyModule::validate(int value) {
+    return value > 0;
+}
+```
+
+
+## 12. 推荐工具
+
+- **Doxygen**: 自动生成API文档
+- **clang-tidy**: 检查注释一致性
+- **IDE**: CLion / VSCode（Doxygen 渲染支持）
+
+
+**End of Rules**

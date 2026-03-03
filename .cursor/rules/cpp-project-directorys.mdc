@@ -1,0 +1,17 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# 工程项目目录结构的规范使用要求
+1. `/tests`目录中存放所有的单元测试相关文件内容。测试工程的目录说明和使用说明见 @Files `/tests/README.md`。** 注意 ** 测试类的源代码和测试用可执行程序都要放到`/tests`目录下，不用放到工程根目录下面。
+   - `/tests/modules/<module_name>/` 目录存放各个模块专用的测试文件、测试程序、构建脚本和测试报告文档。例如：`/tests/modules/logger/` 存放Logger模块的所有测试相关内容。
+   - `/tests/locust`目录是locust性能测试工程目录，其中`/tests/locust/CURSOR_README.md`为 cursor 会话对本性能测试工程构建的总结记录文档。
+   - 只有针对全局的测试文档和测试程序保留在`/tests`根目录下。
+2. `/config`目录存放工程项目的参数配置文件。
+3. `/src`目录存放本工程原创源代码文件。`/src/components` 存放ECS中的组件模块，`/src/systems` 存放ECS中的system模块。
+4. `/examples`目录为本工程单元模块的示例源码存放目录。
+5. `/build`和`/build_debug`目录为本工程编译后的产品输出目录, 该目录下应该包含二进制可执行文件已经配套的`config`参数文件存放目录。
+6. `/docs`目录存放工程需求设计与实现文档，包括`/docs/design` 为版本规划设计文档，`/docs/impl`为描述各个功能模块的具体实现情况的文档,通常针对具体模块实现的讨论可以放到本目录下，新模块可以新建子目录。`/docs/dev`目录存放开发过程与开发工具辅助文档，包括`/docs/dev/build`目录为开发环境和开发工具的使用说明，`/docs/dev/context`目录为 cursor 上下文目录。`/docs/dev/CURSOR_README.md`为 cursor 会话对工程构建的总结记录文档。
+7. 更多最新目录要求，见 @Files `/docs/Directorys.md`

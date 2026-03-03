@@ -1,0 +1,111 @@
+---
+description: C++ 源代码排版与命名风格规范
+globs:
+  - "**/*.cpp"
+  - "**/*.cc"
+  - "**/*.cxx"
+  - "**/*.h"
+  - "**/*.hpp"
+alwaysApply: false
+---
+
+# C++ 源代码风格要求（排版与命名）
+
+## 排版与格式（Formatting）
+
+- **缩进**
+  - 统一使用 **4 个空格缩进**，禁止使用 Tab。
+- **行宽**
+  - 普通代码行尽量不超过 **100 列**（上限 120 列），超长表达式按语义断行。
+- **大括号风格**
+  - 推荐使用 **K&R / 1TBS 风格**：
+    ```cpp
+    if (condition) {
+        doSomething();
+    } else {
+        doOther();
+    }
+
+    class MyClass {
+    public:
+        void doWork();
+    };
+    ```
+  - 类、函数、控制语句的左大括号 `{` 与声明同行，右大括号 `}` 独占一行。
+- **空格使用**
+  - 二元运算符两侧加空格：`a + b`、`x == y`、`a && b`。
+  - 逗号、分号后加空格：`func(a, b);`
+  - 不在函数名与左括号间添加空格：`doWork()`、而非 `doWork ()`。
+  - 指针/引用符号紧挨类型或按项目统一约定，但在本规范中推荐：
+    - `Type* ptr;`、`const Type& ref;`
+- **空行**
+  - 逻辑段落之间使用空行分隔，避免大段无分隔的「代码墙」。
+  - 文件末尾保留一个空行。
+- **文件组织**
+  - 头文件包含顺序：
+    1. 对应的头文件（在 `.cpp` 中，先包含自身对应 `.h/.hpp`）
+    2. C/C++ 标准库头文件
+    3. 第三方库头文件
+    4. 本项目其他模块头文件
+    5. 当前模块的相对路径头文件
+  - 使用 `#pragma once` 或 include guard，项目内统一一种。
+
+## 命名习惯（Naming）
+
+### 类型与类
+
+- **类 / 结构体 / 枚举 / 类型别名**
+  - 使用 **PascalCase**（大驼峰）：`MyClass`、`UserInfo`、`GameObject`。
+  - 枚举类型名称也使用 PascalCase：`ColorType`、`LogLevel`。
+
+### 函数与方法
+
+- 普通函数、成员函数使用 **lowerCamelCase**：
+  - 例如：`updatePosition()`、`loadConfig()`、`toString()`。
+- 访问器(getter) / 修改器(setter)使用 `getXxx()` / `setXxx()` 习惯方式命名：
+  - 例如：`getName()`、`setName()`。
+- 函数名应为**动词或动宾结构**，表达行为意图。
+
+### 变量与成员
+
+- **普通局部变量 / 形参**
+  - 使用 **lowerCamelCase**：`count`、`userName`、`maxRetryCount`。
+- **类的成员变量（数据属性）**
+  - 使用 **lowerCamelCase + 下划线后缀 `_`**：
+    - 示例：`int count_;`、`std::string name_;`、`MyType myType_;`
+  - 统一在类的声明中将成员变量集中放在 `private:` 块中，按逻辑分组。
+- **全局变量**
+  - 避免使用；确需使用时，应有明显前缀（如 `g_`、`s_`）并尽量限制作用域。
+
+### 常量与宏
+
+- **常量**
+  - 使用 **UPPER_SNAKE_CASE**：`MAX_CONNECTIONS`、`DEFAULT_PORT`。
+  - 使用 `constexpr` 或 `const` 代替宏常量：
+    ```cpp
+    constexpr int MAX_RETRY_COUNT = 3;
+    ```
+- **宏（仅在必要时使用）**
+  - 同样使用 **UPPER_SNAKE_CASE**：`MY_LIBRARY_API`、`ENABLE_FEATURE_X`。
+  - 避免使用宏实现复杂逻辑，优先使用内联函数、模板或 `constexpr`。
+
+### 命名空间与文件名
+
+- **命名空间**
+  - 小写或小写 + 下划线：`app`、`core`、`network_utils`。
+  - 项目级命名空间>模块级命名空间：`app::network`、`app::ui::controls`。
+- **文件名**
+  - 与主要类或模块同名：
+    - `MyClass` 对应 `MyClass.h` / `MyClass.cpp`
+  - 若是功能性模块，可使用下划线小写：`string_utils.h`、`file_system.cpp`。
+
+## 其他约定
+
+- **显式性**
+  - 禁止使用 `using namespace std;` 等大范围 `using`；在局部或单个符号上使用 `using std::string;` 这类形式。
+  - 转换使用 `static_cast` / `dynamic_cast` / `const_cast` / `reinterpret_cast`，避免 C 风格转换。
+- **头文件中的内容**
+  - 头文件仅放声明与轻量内联实现；重实现放在 `.cpp` 中。
+  - 头文件中避免使用 `using namespace`。
+
+> 本文件为 C++ 源代码排版与命名的基础约定，若项目有更细化规范（如 Google C++ Style、LLVM Style 等），以项目级规则为准，并在 README 或专门的 style 文档中补充说明。

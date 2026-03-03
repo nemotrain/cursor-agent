@@ -1,0 +1,28 @@
+---
+description: 这是远端 Ubuntu 主机安装/升级 Cursor Server 的离线流程。在远端Ubuntu主机上进行 Cursor Server的安装和升级时，尽量采用离线安装升级流程，尤其是当远端无法直连 Cursor 服务器时。
+alwaysApply: true
+---
+
+# Cursor Server 远端主机安装与升级
+
+当需要在**无法直接访问 Cursor 相关服务器**的远端 Ubuntu 主机上安装或升级 Cursor Server 时，必须采用以下离线流程，不得在远端主机上直接执行在线安装/升级。
+
+## 正确流程
+
+1. **在 Cursor IDE 所在工作主机上下载**
+   - 在当前可访问 Cursor 的机器上，下载对应平台（linux-x64）的 Cursor Server 安装/升级包（如 `.tar.gz`）。
+   - 下载地址或方式以 Cursor 官方文档/发布页为准。
+
+2. **传输到远端 Ubuntu 主机**
+   - 使用 `scp`、`rsync`、SFTP 或项目内约定的方式，将下载好的安装/升级包从工作主机传输到目标远端 Ubuntu 主机。
+
+3. **在远端主机上执行安装/升级**
+   - 在远端 Ubuntu 主机上解压并执行安装或升级脚本/命令，完成 Cursor Server 的安装或升级。
+
+## 禁止做法
+
+- 不要在无法直连 Cursor 服务器的远端 Ubuntu 主机上直接运行会访问 Cursor 官网或 CDN 的安装/升级命令（如直接下载安装脚本并执行），否则会因网络不可达而失败。
+
+## 参考
+
+- 项目内已有离线部署说明与脚本可作参考：`docs/cursor-remote-server-offline-install.md`、`docs/cursor-server-offline-deploy.sh`，以及 `docs/cursor_downloads/` 中存放的安装包。

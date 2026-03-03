@@ -1,0 +1,42 @@
+---
+description: C++ coding standards and best practices
+globs: **/*.{cpp,h,hpp,cc}
+alwaysApply: false
+---
+
+# C++ Coding Standards
+
+## Language Standards
+- Use **C++17/20** features
+- Prefer modern C++ idioms over legacy patterns
+- Use RAII principles for resource management
+- Follow exception safety guarantees
+
+## Best Practices
+
+### Memory Management
+- Prefer smart pointers (`std::unique_ptr`, `std::shared_ptr`) over raw pointers
+- Use RAII for resource management
+- Avoid memory leaks and dangling pointers
+
+### Modern C++ Features
+- Use structured bindings when appropriate
+- Prefer `auto` for type deduction (when it improves readability)
+- Use range-based for loops
+- Use `constexpr` and `const` appropriately
+
+### Error Handling
+- Use exceptions for exceptional circumstances
+- Provide meaningful error messages
+- Follow exception safety guarantees
+
+### Performance
+- Consider cache-friendly data layouts
+- Avoid false sharing (arrange data to minimize multiple threads modifying variables on the same cache line)
+- Use move semantics to avoid unnecessary copies
+- Profile code before optimizing
+
+## Architecture Compatibility
+- Ensure code works on both **x64** (primary) and **x86** (secondary) architectures
+- Use proper type sizes (consider `int32_t`, `int64_t` instead of `int`, `long`)
+- Be aware of pointer size differences between architectures
