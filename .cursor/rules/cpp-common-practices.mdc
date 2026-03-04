@@ -1,0 +1,307 @@
+---
+description: Common practices, conventions for c++ project
+alwaysApply: true
+---
+
+# Common Practices and Conventions
+
+## Language Standards
+- Use **C++17/20** features
+- Prefer modern C++ idioms over legacy patterns
+- Use RAII principles for resource management
+- Follow exception safety guarantees
+
+## Best Practices
+
+### Memory Management
+- Prefer smart pointers (`std::unique_ptr`, `std::shared_ptr`) over raw pointers
+- Use RAII for resource management
+- Avoid memory leaks and dangling pointers
+
+### Modern C++ Features
+- Use structured bindings when appropriate
+- Prefer `auto` for type deduction (when it improves readability)
+- Use range-based for loops
+- Use `constexpr` and `const` appropriately
+
+### Error Handling
+- Use exceptions for exceptional circumstances
+- Provide meaningful error messages
+- Follow exception safety guarantees
+
+### Performance
+- Consider cache-friendly data layouts
+- Use move semantics to avoid unnecessary copies
+- Profile before optimizing
+
+## Code Organization Principles
+
+### Separation of Concerns
+- **Public vs Private**: Clear separation between public API and implementation
+- **Header vs Source**: Headers in `include/`, sources in `src/`
+- **Interface vs Implementation**: Interfaces in headers, implementation in source files
+
+### Forward Declarations
+- Use forward declarations in headers to reduce compile-time dependencies
+- Include full definitions only when necessary
+- Prefer `#pragma once` over include guards
+
+## Documentation Standards
+
+### Code Comments
+- Use `/** */` for class/function documentation blocks
+- Use `//` for inline comments
+- Document public APIs thoroughly
+- Include parameter descriptions, return values, exceptions
+
+### File Headers
+```cpp
+/**
+ * @file FileName.h
+ * @brief Brief description of the file's purpose
+ * @details Detailed description if needed
+ * @author Author name
+ * @date Date
+ */
+```
+
+### Documentation Files
+- **README.md**: Project/subproject overview
+- **TODO.md**: Task lists and future work
+- **Technical docs**: Architecture, design decisions, analysis reports
+- Use Markdown format for documentation
+
+## Version Control
+
+### Git Workflow
+- **Branch**: Follow team branching strategy (e.g., `main`, `develop`, feature branches)
+- **Commits**: Meaningful commit messages
+- **Ignore**: Use `.gitignore` and `.cursorignore` appropriately
+
+### File Tracking
+- Track source code, headers, configuration templates
+- Ignore build artifacts, generated files, temporary files
+- Document ignored patterns in `.gitignore`
+
+## Common Patterns
+
+### Resource Management
+```cpp
+// Prefer smart pointers
+std::unique_ptr<Resource> resource_;
+
+// RAII for cleanup
+class ResourceManager {
+    ~ResourceManager() { Cleanup(); }
+};
+```
+
+### Error Handling
+```cpp
+// Return bool for success/failure
+bool Initialize() {
+    if (!condition) {
+        // Log error using project logging framework
+        return false;
+    }
+    return true;
+}
+
+// Use exceptions for exceptional cases
+if (critical_error) {
+    throw std::runtime_error("Critical error occurred");
+}
+```
+
+### Initialization Pattern
+```cpp
+// Initialize in order: dependencies first
+bool Init() {
+    // 1. Initialize subsystems
+    if (!InitSubsystem()) return false;
+    
+    // 2. Register handlers
+    RegisterHandlers();
+    
+    // 3. Start services
+    StartServices();
+    
+    return true;
+}
+```
+
+### Cleanup Pattern
+```cpp
+// Cleanup in reverse order of initialization
+bool Clean() {
+    // 1. Stop services
+    StopServices();
+    
+    // 2. Unregister handlers
+    UnregisterHandlers();
+    
+    // 3. Cleanup subsystems
+    CleanupSubsystems();
+    
+    return true;
+}
+```
+
+## Anti-Patterns to Avoid
+
+### Memory Management
+- ❌ Raw pointers for ownership
+- ❌ Manual `new`/`delete` without RAII
+- ❌ Memory leaks from incomplete cleanup
+- ✅ Use smart pointers
+- ✅ Use RAII wrappers
+- ✅ Ensure proper cleanup in destructors
+
+### Threading
+- ❌ Shared mutable state without synchronization
+- ❌ Deadlocks from improper lock ordering
+- ❌ Race conditions
+- ✅ Use thread-safe data structures
+- ✅ Proper synchronization primitives
+- ✅ Lock-free algorithms where appropriate
+
+### Performance
+- ❌ Premature optimization
+- ❌ Unnecessary copies
+- ❌ Inefficient algorithms
+- ✅ Profile first, optimize second
+- ✅ Use move semantics
+- ✅ Choose appropriate data structures
+
+## Debugging Guidelines
+
+### Logging
+- Use appropriate log levels: Trace, Debug, Info, Warning, Error
+- Include context in log messages
+- Use structured logging when possible
+- Filter logs appropriately (e.g., Info+ in production)
+
+### Debugging Tools
+- Visual Studio debugger for Windows development
+- PDB files for symbol information
+- Breakpoints and watch windows
+- Memory profilers for leak detection
+
+### Common Issues
+- **Include order**: Check for macro conflicts between third-party libraries and project code
+- **DLL export/import**: Ensure export/import macros are correct
+- **Precompiled headers**: Include precompiled header first if used
+- **Architecture mismatch**: Ensure x64/x86 consistency
+
+## Architecture Compatibility
+- Ensure code works on both **x64** (primary) and **x86** (secondary) architectures
+- Use proper type sizes (consider `int32_t`, `int64_t` instead of `int`, `long`)
+- Be aware of pointer size differences between architectures
+
+## Testing Guidelines
+
+### Unit Testing
+- Test individual components in isolation
+- Use test fixtures for setup/teardown
+- Test both success and failure cases
+- Keep tests fast and independent
+
+### Integration Testing
+- Test component interactions
+- Test module lifecycle
+- Test error recovery
+
+### Performance Testing
+- Benchmark critical paths
+- Profile memory usage
+- Measure latency and throughput
+- Compare before/after optimizations
+
+## Performance Considerations
+
+### Memory
+- Use cache-friendly data layouts
+- Minimize allocations in hot paths
+- Use object pools for frequently allocated objects
+- Consider memory alignment for SIMD operations
+
+### CPU
+- Use move semantics to avoid copies
+- Prefer algorithms with better complexity
+- Consider SIMD for vector operations
+- Profile and optimize hot paths
+
+### Network
+- Minimize message sizes
+- Batch operations when possible
+- Use efficient serialization formats
+- Consider compression for large payloads
+
+## Security Considerations
+
+### Input Validation
+- Validate all external inputs
+- Sanitize user-provided data
+- Check buffer bounds
+- Validate protocol messages
+
+### Resource Limits
+- Set reasonable timeouts
+- Limit resource usage
+- Handle resource exhaustion gracefully
+- Monitor resource consumption
+
+### Secure Communication
+- Use SSL/TLS for network communication
+- Validate certificates
+- Use secure random number generators
+- Protect sensitive data
+
+## Team Collaboration
+
+### Code Review
+- Review for correctness, style, and performance
+- Check for common pitfalls
+- Ensure documentation is adequate
+- Verify tests are included
+
+### Communication
+- Document design decisions
+- Update documentation with changes
+- Share knowledge through code comments
+- Use meaningful commit messages
+
+### Consistency
+- Follow established patterns
+- Maintain code style consistency
+- Use consistent naming conventions
+- Keep architecture patterns consistent
+
+## Development Environment
+
+### IDE Setup
+- C++ IDE with IntelliSense / code completion
+- Debugging symbols enabled
+
+### Build Environment
+- Use appropriate build system (MSBuild, CMake, etc.)
+- Proper environment variables set
+
+### Tools
+- Git for version control
+- Visual Studio debugger
+- Build scripts for automation
+- Documentation tools (Markdown)
+
+## Best Practices Summary
+
+1. **Write clear, maintainable code** - Code is read more than written
+2. **Follow established patterns** - Consistency aids understanding
+3. **Document public APIs** - Help others use your code
+4. **Test your code** - Ensure correctness and catch regressions
+5. **Profile before optimizing** - Measure, don't guess
+6. **Handle errors gracefully** - Robust error handling improves reliability
+7. **Keep functions focused** - Single responsibility principle
+8. **Use appropriate abstractions** - Balance simplicity and flexibility
+9. **Consider performance** - But don't sacrifice clarity for micro-optimizations
+10. **Review and refactor** - Continuous improvement

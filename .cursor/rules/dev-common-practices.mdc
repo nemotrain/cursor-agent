@@ -1,5 +1,5 @@
 ---
-description: Common practices, conventions, and context for the project
+description: Common practices, conventions, and context for general software project
 alwaysApply: true
 ---
 
@@ -16,6 +16,8 @@ alwaysApply: true
 - **架构设计**：关键决策、单体/微服务、模块划分、扩展点（如插件、中间件）、数据流
 - **领域概念**：业务/领域术语及缩写，便于 AI 与新人理解
 - **变更与任务**：CHANGELOG、TODO/ROADMAP 等
+
+当开发过程中出现新功能、新技术、新架构、新概念等等新的内容，应动态更新README.md文件以反映这些新内容。
 
 ## Naming Conventions
 
